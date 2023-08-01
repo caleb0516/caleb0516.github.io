@@ -1,0 +1,45 @@
+a {
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+    color: #fff;
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 20px;
+    background-color: #007bff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+
+a:hover {
+    background-color: #0056b3;
+}
+
+
+body {
+    position: relative;
+}
+a#home {
+    background-color: white;
+    font-size: 20px;
+    font-family: 'Times New Roman', Times, serif;
+    color: black;
+    text-decoration: underline;
+}
+
+
+a#previous-slide {
+    position: absolute;
+    bottom: -50px;
+    right: 150px;
+
+}
+
+
+a#next-slide {
+    position: absolute;
+    bottom: -50px;
+    right: 20px;
+}

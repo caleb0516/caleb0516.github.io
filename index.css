@@ -1,0 +1,109 @@
+body {
+    font-family: Arial, 'Times New Roman', Times, serif;
+    color: rgb(0, 0, 0);
+    font-size: 18px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #ffffff;
+    padding: 20px;
+    
+}
+
+a {
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+    color: #fff;
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 20px;
+    background-color: #007bff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+a:hover {
+    background-color: #0056b3;
+}
+
+body {
+    position: relative;
+}
+
+a#previous-slide {
+    position: absolute;
+    bottom: -50px;
+    right: 150px;
+
+}
+a#next-slide {
+    position: absolute;
+    bottom: -50px;
+    right: 20px;
+}
+
+
+.info-iconspecial {
+    font-weight: bold;
+    color: rgb(24, 24, 31);
+    cursor: pointer;
+    position: relative;
+    margin-left: 40px;
+    background-color: rgba(255, 255, 0, 0.8);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.info-iconspecial:before {
+    content: "i";
+    display: inline-block;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 16px;
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    line-height: 18px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 0, 0.8);
+    /* Dull yellow with 80% opacity */
+    position: absolute;
+    top: -8px;
+    left: -40px;
+    color: rgb(24, 24, 31);
+}
+
+
+.source {
+    font-size: 18px;
+    font-style: italic;
+    margin-left: 20px;
+   
+}
+
+.WMB {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+
+.svb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.logos {
+    width: 500px;
+  
+    height: 300px;
+
+}

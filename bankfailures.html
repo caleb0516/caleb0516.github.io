@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <a id="home" href="index.html">Home</a>
+    <meta charset="UTF-8">
+    <title>Bank Failures</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.5.0/d3-annotation.min.js"></script>
+</head>
+<body>
+    <h1 style ="font-size: 40px;">Market bankfailure from 2000-2023</h1>
+    <p style="font-size: 25px;">Here is a graph representing all the banks that have failed from the year 2000 to 2023.
+        In the x-axis we have the dates of when these banks collapsed, and in the y-axis is their assets in billions. We can see that through 
+        out the years many banks fail, and it is common to see a few fail almost every year. But notice how all the banks that fail in 
+        a consistent matter are scattered close to the x-axis. This shows that, banks that fail in a consistent matter do not have much in assets.
+        Then notice that in 2008 a lot more banks fail than usual. To add to that the banks failing are not just smaller banks with lesser assets, but
+        huge well known banks with billions of dollars in assets. This is a huge red flag, and it shows that something is wrong with the market during
+        that time. Let's take a look and see what exactly happened in the next slide.
+    </p>
+    <p style="font-size: 20px"><em>There are buttons on this slide. Click Washington Mutal Bank or Silicon Valley Bank to see more
+        info on those banks right away!.</em> </p>
+    <div id="bankfailure"></div>
+    <script>
+        var margin = { top: 200, right: 200, bottom: 200, left: 200 };
+        let width, height;
+        var time = d3.timeParse("%m/%d/%Y");
+
+        d3.select('#bankfailure svg').remove();
+        width = window.innerWidth - margin.left - margin.right;
+        height = window.innerHeight - margin.top - margin.bottom;
+
+        var svg = d3.select("#bankfailure")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        d3.csv("./data/bank_failure.csv").then(function (data) {
+            data.forEach(function (d) {
+                d.FAILDATE = time(d.FAILDATE);
+                d.AssetinBil = +d.AssetinBil.replace(/,/, '');
+            });
+
+            var x = d3.scaleTime()
+                .domain(d3.extent(data, function (d) { return d.FAILDATE; }))
+                .range([0, width]);
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x));
+
+            var y = d3.scaleLinear()
+                .domain([d3.min(data, function (d) { return d.AssetinBil; }), d3.max(data, function (d) { return d.AssetinBil; })])
+                .range([height, 0]);
+            svg.append("g")
+                .call(d3.axisLeft(y));
+            
+            svg.append("text")
+                .attr("x", width / 2)
+                .attr("y", height + margin.bottom - 120)
+                .attr("text-anchor", "middle")
+                .style("font-size", "25")
+                .text("FAILDATE");
+
+            svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("x", 0 - height / 2)
+                .attr("y", -margin.left + 100)
+                .attr("text-anchor", "middle")
+                .style("font-size", "25")
+                .text("Assets (in $ Billions)");
+                
+            svg.append("text")
+                .attr("x", (width / 2))
+                .attr("y", 0 - (margin.top / 2)-75)
+                .attr("text-anchor", "middle")
+                .style("font-size", "25")
+                .style("text-decoration", "underline")
+                .text("Bank Assets in Billions vs FAILDATE");
+                
+
+            // Define a linear scale for the circle size based on AssetinBil values
+            var circleSizeScale = d3.scaleLinear()
+                .domain([d3.min(data, function (d) { return d.AssetinBil; }), d3.max(data, function (d) { return d.AssetinBil; })])
+                .range([1.0, 40]); // Adjust the range to change circle sizes
+
+            // Define a categorical color scale for different AssetinBil values
+            var colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+            var dots = svg.append("g")
+                .selectAll("dots").data(data);
+            dots.enter().append("circle")
+                .attr("cx", function (d) { return x(d.FAILDATE); })
+                .attr("cy", function (d) { return y(d.AssetinBil); })
+                .attr("r", function (d) { return 4 * circleSizeScale(d.AssetinBil); }) // Use the circleSizeScale for circle size
+                .style("fill", function (d) { return colorScale(d.AssetinBil); }); // Use the color scale to set different colors
+
+            // Filter the two biggest circles based on AssetinBil values
+            var biggestCircles = data.sort(function (a, b) { return b.AssetinBil - a.AssetinBil; }).slice(0, 3);
+
+            // Add annotations to the two biggest circles
+            var annotations = [
+                { label: biggestCircles[0].NAME, x: x(biggestCircles[0].FAILDATE), y: y(biggestCircles[0].AssetinBil) },
+                { label: biggestCircles[2].NAME, x: x(biggestCircles[1].FAILDATE), y: y(biggestCircles[1].AssetinBil)  },
+                { label: biggestCircles[0].AssetinBil, x: x(biggestCircles[0].FAILDATE), y: y(biggestCircles[0].AssetinBil) +20 },
+                { label: 'Sep 25, 2008', x: x(biggestCircles[0].FAILDATE), y: y(biggestCircles[0].AssetinBil) +40 },
+                { label: '$', x: x(biggestCircles[0].FAILDATE)-48, y: y(biggestCircles[0].AssetinBil) +20 },
+                { label: biggestCircles[2].AssetinBil, x: x(biggestCircles[1].FAILDATE), y: y(biggestCircles[1].AssetinBil) +20 },
+                {label: '$', x: x(biggestCircles[2].FAILDATE)-22, y: y(biggestCircles[2].AssetinBil) +11.5 },
+                 {label: 'March 07, 2023', x: x(biggestCircles[2].FAILDATE), y: y(biggestCircles[2].AssetinBil) +30}
+           
+                 ];
+
+            //
+            var annotationLabels = svg.selectAll(".annotation-label")
+                .data(annotations)
+                .enter()
+                .append("a")
+                .attr("link:href", function (d, i) {
+                    return i % 2 === 0 ? "WMBcrash.html" : "siliconCrash.html"; 
+                })
+                .append("text")
+                .attr("x", function (d) { return d.x; })
+                .attr("y", function (d) { return d.y; })
+                .attr("text-anchor", "middle")
+                .style("font-size", "16px")
+                .style("fill", "black")
+                .text(function (d) { return d.label; });
+                
+        });
+
+    </script>
+
+    <link rel="stylesheet" href="button.css">
+    <a id="previous-slide" href="index.html">Last Slide</a>
+    <a id="next-slide" href="overview.html">Next Slide</a>
+</body>
+</html>

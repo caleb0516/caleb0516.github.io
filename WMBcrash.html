@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <a id="home" href="index.html">Home</a>
+    <meta charset="UTF-8" />
+    <title>Historical Market Crashes</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.5.0/d3-annotation.min.js"></script>
+  </head>
+  <body>
+    <h1>Market WMB from 2000-2009</h1>
+    <p style="font-size: 22px">
+      In this graph we can see more details of what happened to WMB's stock
+      prices. We can see that the prices were pretty consistent for a while, at
+      least until 2007. In the last slide we concluded that the stock market
+      crashing caused WMB to fail. This graph here futher supports our case
+      because we can see that the stock prices for WMB dropped almost verticaly
+      losing 100% of its value within a year. This also tells us that not only
+      was the market crash of 2008 a reason for WMB's failure, but its main
+      reason by a large margin.
+    </p>
+    <div id="WMB"></div>
+    <script>
+      d3.select("#WMB svg").remove();
+      width = 2200;
+      height = 800;
+
+      d3.csv("./data/WMB.csv").then(function (data) {
+        data.forEach(function (d) {
+          d.Date = d3.timeParse("%m/%d/%Y")(d.Date);
+        });
+        data = data.filter(function (d) {
+          return d.Date.getFullYear() >= 2000 && d.Date.getFullYear() <= 2009;
+        });
+
+        var svg = d3
+          .select("#WMB")
+          .append("svg")
+          .attr("width", 2800)
+          .attr("height", 1200)
+          .append("g")
+          .attr("transform", "translate(" + 200 + "," + 200 + ")");
+
+        var x = d3
+          .scaleTime()
+          .domain(
+            d3.extent(data, function (d) {
+              return d.Date;
+            })
+          )
+          .range([0, width]);
+        svg
+          .append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x));
+        var y = d3
+          .scaleLinear()
+          .domain([
+            0,
+            d3.max(data, function (d) {
+              return d.Price;
+            }),
+          ])
+          .range([height - 3, 0]);
+        svg.append("g").call(d3.axisLeft(y));
+
+        svg
+          .append("text")
+          .attr("x", width / 2)
+          .attr("y", height + 200 - 100)
+          .attr("text-anchor", "middle")
+          .style("font-size", "20px")
+          .text("Year");
+
+        svg
+          .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("x", 0 - height / 2)
+          .attr("y", -200 + 60)
+          .attr("text-anchor", "middle")
+          .style("font-size", "20px")
+          .text("Stock Prices ($)");
+
+        svg
+          .append("text")
+          .attr("x", width / 2)
+          .attr("y", 0 - 200 / 2)
+          .attr("text-anchor", "middle")
+          .style("font-size", "25px")
+          .style("text-decoration", "underline")
+          .text("WMB Stock Prices vs Date");
+        var line = d3
+          .line()
+          .x(function (d) {
+            return 0;
+          })
+          .y(function (d) {
+            return y(d.Price);
+          });
+
+        svg
+          .append("path")
+          .datum(data)
+          .attr("fill", "none")
+          .attr("stroke", "red")
+          .attr("stroke-width", 1)
+          .attr("d", line)
+          .transition()
+          .duration(1500)
+          .attr(
+            "d",
+            d3
+              .line()
+              .x(function (d) {
+                return x(d.Date);
+              })
+              .y(function (d) {
+                return y(d.Price);
+              })
+          )
+          .on("end", function () {
+            var annotations = [
+              {
+                note: {
+                  label: "WMU Failure $0",
+                  title: "September 2008",
+                },
+                x: x(new Date(2008, 12, 1)),
+                y: y(0),
+                dy: -110,
+                dx: 20,
+                color: "red",
+                url: "WMBcrash.html",
+              },
+              {
+                note: {
+                  label: "Start of financial Crisis \t $45.49 million",
+                  title: "January 2007 ",
+                },
+                x: x(new Date(2007, 0, 1)),
+                y: y(45.49),
+                dy: -110,
+                dx: -20,
+                color: "blue",
+                url: "2008FinancialCrisis.html",
+              },
+              {
+                note: {
+                  label:
+                    "In 1 year the value dropped from $45.49 million to 0!",
+                  title: "100% Drop",
+                },
+                x: x(new Date(2007, 9, 1)),
+                y: y(23),
+                dy: -110,
+                dx: 20,
+                color: "black",
+                fontsize: 30,
+                url: "WMBcrash.html",
+              },
+            ];
+
+            var makeAnnotations = d3
+              .annotation()
+              .annotations(annotations)
+              .type(d3.annotationLabel)
+              .accessors({
+                x: (d) => d.x,
+                y: (d) => d.y,
+              })
+              .accessorsInverse({
+                x: (d) => x.invert(d.x),
+                y: (d) => y.invert(d.y),
+              })
+              .on("subjectover", function (annotation) {
+                d3.select(this).select("text").style("fill", "red");
+              })
+              .on("subjectout", function (annotation) {
+                d3.select(this).select("text").style("fill", "black");
+              });
+
+            svg
+              .append("g")
+              .attr("class", "annotation-group")
+              .call(makeAnnotations);
+
+            d3.selectAll(".annotation-group .annotation")
+              .style("cursor", "pointer")
+              .each(function (d, i) {
+                d3.select(this).on("click", function () {
+                  window.location.href = annotations[i].url;
+                });
+              });
+          });
+      });
+    </script>
+    <link rel="stylesheet" href="button.css" />
+    <a id="previous-slide" href="2008FinancialCrisis.html">Last Slide</a>
+    <a id="next-slide" href="covid-19.html">Next Slide</a>
+  </body>
+</html>

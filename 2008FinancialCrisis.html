@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <a id="home" href="index.html">Home</a>
+    <meta charset="UTF-8">
+    <title>2008 Fiancial Crisis</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.5.0/d3-annotation.min.js"></script>
+</head>
+<body>
+    <h1>2008 Fiancial Crisis</h1>
+    <p style="font-size: 25px;">In this graph we can see a more detailed and zoomed in view of the market prices during the 
+        2008 Financial Crisis. Here we see that the fail of WMB actually was during the middle and the peak of the market crash. 
+        This allows us to see that the stock market crash was indeed the main cause of the fail of WMB. In the next slide we will see the 
+        prices of WMB directly during this time period, and see the pattern of its stock prices.</p>
+    </p>
+    <div id="overview"></div>
+    <script>
+            d3.select('#overview svg').remove();
+            width = 2200;
+            height = 800;
+
+             d3.csv("./data/stockprices.csv").then(function (data) {
+                data.forEach(function (d) {
+                    d.Date = d3.timeParse("%m/%d/%Y")(d.Date);
+                    d.Price = +d.Price.replace(/,/, '');
+                });
+
+            var svg = d3.select("#overview")
+                .append("svg")
+                .attr("width", 2800)
+                .attr("height", 1200)
+                .append("g")
+                .attr("transform", "translate(" + 200 + "," + 200 + ")");
+
+                data = data.filter(function (d) {
+                    return d.Date.getFullYear() >= 2006 && d.Date.getFullYear() <= 2010;
+                });
+
+                var x = d3.scaleTime()
+                    .domain(d3.extent(data, function (d) { return d.Date; }))
+                    .range([0, width]);
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x));
+                var spacing = 3;
+                var y = d3.scaleLinear()
+                    .domain([0, d3.max(data, function (d) { return d.Price; })])
+                    .range([height -3, 0]);
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+                
+                svg.append("text")
+                .attr("x", (width / 2))
+                .attr("y", height + 200 - 100)
+                .attr("text-anchor", "middle")
+                .style("font-size", "20px")
+                .text("Year");
+
+                svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("x", 0 - height / 2)
+                .attr("y", -200 + 60)
+                .attr("text-anchor", "middle")
+                .style("font-size", "20px")
+                .text("Stock Prices ($)");
+
+                svg.append("text")
+                    .attr("x", (width / 2))
+                    .attr("y", 0 - (200 / 2))
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "25px")
+                    .style("text-decoration", "underline")
+                    .text("Stock Prices vs Date");
+                var line = d3.line()
+                .x(function (d) { return x(d.Date) })
+                .y(function (d) { return y(0) }); 
+
+                
+
+            svg.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", "red")
+                .attr("stroke-width", 1)
+                .attr("d", line)
+                .transition()
+                .duration(1500)
+                .attr("d", d3.line()
+                    .x(function (d) { return x(d.Date) })
+                    .y(function (d) { return y(d.Price) })
+                );
+                svg.selectAll("dot")
+                    .data(data)
+                    .enter().append("circle") 
+                    .attr("fill", "red")
+                    .attr("cx", function (d) { return x(d.Date) })
+                    .attr("cy", function (d) { return y(d.Price) })
+                    .attr("r", 5);
+                 var september2008 = data.find(function (d) {
+                return d.Date.getFullYear() === 2008 && d.Date.getMonth() === 8; 
+            });
+
+        svg.append("circle")
+    .attr("cx", x(september2008.Date))
+    .attr("cy", y(september2008.Price))
+    .attr("r", 15)
+    .style("fill", "black")
+    .style("cursor", "pointer")
+    .on("click", function () {
+        window.location.href = "WMBcrash.html"; 
+    });
+    var annotation = {
+    note: {
+        label: "Click here for more info!", 
+        title: "Washington Mutual Bank Crash",
+    },
+    x: x(september2008.Date),
+    y: y(september2008.Price),
+    dx: 20,
+    dy: -100,
+    color: "black",
+    subject: {
+        radius: 10,
+        radiusPadding: 5,
+        text: "",
+    },
+};
+
+var makeAnnotations = d3.annotation()
+    .annotations([annotation])
+    .type(d3.annotationLabel)
+    .accessors({
+        x: d => x(d.Date),
+        y: d => y(d.Price)
+    })
+    .accessorsInverse({
+        Date: d => x.invert(d.x),
+        Price: d => y.invert(d.y)
+    });
+
+svg.append("g")
+    .attr("class", "annotation-group")
+    .call(makeAnnotations);
+                
+        
+         });
+    </script>
+
+    <link rel="stylesheet" href="button.css">
+    <a id="previous-slide" href="overview.html">Last Slide</a>
+    <a id="next-slide" href="WMBcrash.html">Next Slide</a>
+</body>
+</html>
