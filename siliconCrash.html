@@ -8,33 +8,33 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.5.0/d3-annotation.min.js"></script>
   </head>
   <body>
-    <h1>Market WMB from 2000-2009</h1>
+    <h1>Market SVB from 2000-2009</h1>
     <p style="font-size: 22px">
-      In this graph, we can see more details of what happened to WMB's stock
-      prices. We can see that the prices were pretty consistent for a while, at
-      least until 2007. In the last slide, we concluded that the stock market
-      crash caused WMB to fail. This graph here further supports our case
-      because we can see that the stock prices for WMB dropped almost vertically
-      losing 100% of its value within a year. This also tells us that not only
-      was the market crash of 2008 a reason for WMB's failure but its main
-      reason by a large margin.
+      In this graph, we can see an in depth analysis of SVB's stock prices from 2018 to 2023. We see that around
+      In February 2020, the stock market crashed due to the Covid-19 pandemic. We can see that the stock prices for SVB decreased immensely as well.
+      However we can also see that SVB didn't fail as WMB did, and in fact, after a few months, the stock started to rise again. This is very different from. 
+      In just a year the stock doubled from a low of 244.49 to 505.03. The stock continued to change and fluctuate, but it never reached the low of 244.49 again. 
+      In fact, overall the stock increased for a while, reaching a peak price of 761.48 in November 2021. In less than two years the price increased by over 300%.
+      However, shortly we see that the stock started to plummet. In March 2023, the stock price reached an absolute low of 0.6. This is a 99.92% decrease from its peak price.
+      And from this SVB crashed. This shows that though the market crash has a significant impact on the bank, it is not the only factor that causes a bank to fail. So what caused SVB to fail?
+      The next slide will answer this question.
     </p>
-    <div id="WMB"></div>
+    <div id="SVB"></div>
     <script>
-      d3.select("#WMB svg").remove();
+      d3.select("#SVB svg").remove();
       width = 2200;
       height = 800;
 
-      d3.csv("./data/WMB.csv").then(function (data) {
+      d3.csv("./data/SIVB.csv").then(function (data) {
         data.forEach(function (d) {
-          d.Date = d3.timeParse("%m/%d/%Y")(d.Date);
+          d.Date = d3.timeParse("%Y-%m-%d")(d.Date);
         });
         data = data.filter(function (d) {
-          return d.Date.getFullYear() >= 2000 && d.Date.getFullYear() <= 2009;
+          return d.Date.getFullYear() >= 2018 && d.Date.getFullYear() <= 2023;
         });
 
         var svg = d3
-          .select("#WMB")
+          .select("#SVB")
           .append("svg")
           .attr("width", 2800)
           .attr("height", 1200)
@@ -58,7 +58,7 @@
           .domain([
             0,
             d3.max(data, function (d) {
-              return d.Price;
+              return d.Close;
             }),
           ])
           .range([height - 3, 0]);
@@ -79,7 +79,7 @@
           .attr("y", -200 + 60)
           .attr("text-anchor", "middle")
           .style("font-size", "20px")
-          .text("Stock Prices ($)");
+          .text("Stock Closes ($)");
 
         svg
           .append("text")
@@ -88,14 +88,14 @@
           .attr("text-anchor", "middle")
           .style("font-size", "25px")
           .style("text-decoration", "underline")
-          .text("WMB Stock Prices vs Date");
+          .text("SVB Stock Closes vs Date");
         var line = d3
           .line()
           .x(function (d) {
             return 0;
           })
           .y(function (d) {
-            return y(d.Price);
+            return y(d.Close);
           });
 
         svg
@@ -115,48 +115,75 @@
                 return x(d.Date);
               })
               .y(function (d) {
-                return y(d.Price);
+                return y(d.Close);
               })
           )
           .on("end", function () {
             var annotations = [
               {
                 note: {
-                  label: "WMU Failure $0",
-                  title: "September 2008",
+                  label: "SVB Failure $0.6",
+                  title: "March 2023",
                 },
-                x: x(new Date(2008, 12, 1)),
+                x: x(new Date(2023, 3, 27)),
                 y: y(0),
                 dy: -110,
                 dx: 20,
                 color: "red",
-                url: "WMBcrash.html",
+                url: "siliconCrash.html",
               },
               {
                 note: {
-                  label: "Start of financial Crisis \t $45.49 million",
-                  title: "January 2007 ",
+                  label: "Peak price in less than a year. \t $761.48 million click to find out why it crashed",
+                  title: "November 2021 ",
                 },
-                x: x(new Date(2007, 0, 1)),
-                y: y(45.49),
+                x: x(new Date(2021, 11, 05)),
+                y: y(720.48),
                 dy: -110,
                 dx: -20,
                 color: "blue",
-                url: "2008FinancialCrisis.html",
+                url: "silicon.html",
+              },
+              
+              {
+                note: {
+                  label: "Start of Covid-19crash \t $244.49 million",
+                  title: "Feburary 2020 ",
+                },
+                x: x(new Date(2020, 2, 02)),
+                y: y(244),
+                dy: -110,
+                dx: -20,
+                color: "black",
+                url: "covid-19.html",
               },
               {
                 note: {
                   label:
-                    "In 1 year the value dropped from $45.49 million to 0!",
-                  title: "100% Drop",
+                    "In 1 year the value went up from 244.49 to 505.03 over 100% Increase",
+                  title: "Feburary 2021",
                 },
-                x: x(new Date(2007, 9, 1)),
-                y: y(23),
+                x: x(new Date(2021, 2, 02)),
+                y: y(505.03),
                 dy: -110,
                 dx: 20,
-                color: "black",
+                color: "green",
                 fontsize: 30,
-                url: "WMBcrash.html",
+                url: "siliconcrash.html",
+              },
+              {
+                note: {
+                  label:
+                    "From Nov 2021 to March 2023, in less than 2 years, SVB's value dropped from 761.48 to 0.6 resuling in a 99.92% decrease and -760.88 million loss", 
+                  title: "SVB Fails",
+                },
+                x: x(new Date(2022, 7, 24)),
+                y: y(505.03),
+                dy: -110,
+                dx: 20,
+                color: "green",
+                fontsize: 30,
+                url: "siliconcrash.html",
               },
             ];
 
@@ -195,7 +222,7 @@
       });
     </script>
     <link rel="stylesheet" href="button.css" />
-    <a id="previous-slide" href="2008FinancialCrisis.html">Last Slide</a>
-    <a id="next-slide" href="covid-19.html">Next Slide</a>
+    <a id="previous-slide" href="covid-19.html">Last Slide</a>
+    <a id="next-slide" href="conclusion.html">Next Slide</a>
   </body>
 </html>
